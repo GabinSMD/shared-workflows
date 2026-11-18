@@ -34,3 +34,11 @@ jobs:
 ```
 
 The checks show up as `conventions / Branch name` and `conventions / PR title`. To make them blocking, add them as required status checks in the branch protection settings. On a branch with a merge queue, also add `merge_group` to the caller's triggers first.
+
+## Cloud session setup
+
+`cloud/setup.sh` configures every Claude Code cloud environment the same way: git identity, no Claude attribution, and the personal rules (branch convention, one task per session, when to ask for a local session). Add this line to each environment's **Setup script** on claude.ai/code, after any project-specific steps:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/GabinSMD/shared-workflows/main/cloud/setup.sh | bash
+```
