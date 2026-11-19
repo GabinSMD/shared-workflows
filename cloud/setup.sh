@@ -8,11 +8,41 @@
 git config --global user.name "Gabin SIMOND"
 git config --global user.email "59763102+GabinSMD@users.noreply.github.com"
 
-# 2. Pas de ligne « Co-Authored-By: Claude » dans les commits et PR
+# 2. Pas de ligne « Co-Authored-By: Claude » dans les commits et PR, et droit
+#    de livrer sans demander : committer, pousser une branche de travail,
+#    ouvrir une PR. Sans ces règles, une session lancée par une tâche planifiée
+#    ou par une autre session s'arrête, correctif prêt, avant le commit
+#    (constaté le 19/11/2026 sur ecole-saas #450).
+#    Interdits quoi qu'il arrive : forcer un push, pousser sur une branche
+#    longue, fusionner une PR. La vraie barrière reste la protection de
+#    branche du dépôt : ces refus ne sont qu'un garde-fou de plus.
 mkdir -p ~/.claude
 cat > ~/.claude/settings.json <<'EOF'
 {
-  "attribution": { "commit": "", "pr": "" }
+  "attribution": { "commit": "", "pr": "" },
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git switch:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(gh pr comment:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git push origin main:*)",
+      "Bash(git push origin master:*)",
+      "Bash(git push origin develop:*)",
+      "Bash(git push origin staging:*)",
+      "Bash(git push -u origin main:*)",
+      "Bash(git push -u origin develop:*)",
+      "Bash(gh pr merge:*)"
+    ]
+  }
 }
 EOF
 
