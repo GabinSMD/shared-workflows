@@ -1,0 +1,103 @@
+name: Auto-merge
+
+# Squash-merges ONE agent pull request per run when it is provably safe:
+# green CI, "Revue de code : OK" (and "QA : OK" for UI changes) newer than the
+# last commit, and no sensitive file. Rules and tests: scripts/auto_merge.py.
+# Reusable workflow: see README.md for the caller to add to each repo.
+#
+# Safety: runs only from the caller's DEFAULT branch (schedule, issue_comment,
+# workflow_run) and never checks out pull request code. The caller decides
+# `enabled`; anything else is a dry run that only writes a summary.
+
+on:
+  workflow_call:
+    inputs:
+      enabled:
+        description: "true to merge; false = dry run (summary only)"
+        type: boolean
+        default: false
+      sensitive-paths:
+        description: "Repo-specific globs that always need a human (one per line; dir/ = everything under)"
+        type: string
+        default: ""
+      ui-paths:
+        description: "Globs of user-facing files: a PR touching them also needs 'QA : OK'"
+        type: string
+        default: ""
+      trusted-authors:
+        description: "GitHub logins whose verdict comments count (default: the repo owner)"
+        type: string
+        default: ""
+      after-merge-dispatch:
+        description: "Workflow files to dispatch on the default branch after a merge (a GITHUB_TOKEN merge triggers no push workflow)"
+        type: string
+        default: ""
+      pages-build:
+        description: "Request a GitHub Pages build after a merge (legacy Pages sites)"
+        type: boolean
+        default: false
+      delete-branch:
+        type: boolean
+        default: true
+      shared-ref:
+        description: "Ref of GabinSMD/shared-workflows holding scripts/auto_merge.py"
+        type: string
+        default: main
+
+permissions: {}
+
+jobs:
+  merge:
+    name: Auto-merge
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      statuses: read
+      actions: write
+      pages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: GabinSMD/shared-workflows
+          ref: ${{ inputs.shared-ref }}
+          path: shared
+          persist-credentials: false
+      - name: Evaluate open pull requests
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SENSITIVE_PATHS: ${{ inputs.sensitive-paths }}
+          # Never merged without a human, in every repo: CI and automation,
+          # deployment, dependencies, database migrations, secrets, licences.
+          ALWAYS_SENSITIVE: |
+            .github/
+            **/migrations/**
+            **/migration/**
+            **/*.sql
+            Dockerfile
+            **/Dockerfile*
+            docker-compose*.yml
+            **/docker-compose*.yml
+            package.json
+            **/package.json
+            package-lock.json
+            **/package-lock.json
+            pnpm-lock.yaml
+            yarn.lock
+            **/*.lock
+            **/.env*
+            **/*secret*
+            **/*.pem
+            LICENSE
+            CODEOWNERS
+          UI_PATHS: ${{ inputs.ui-paths }}
+          TRUSTED_AUTHORS: ${{ inputs.trusted-authors }}
+          AFTER_MERGE_DISPATCH: ${{ inputs.after-merge-dispatch }}
+          PAGES_BUILD: ${{ inputs.pages-build }}
+          DELETE_BRANCH: ${{ inputs.delete-branch }}
+          OWN_CHECK_NAMES: |
+            Auto-merge
+            auto-merge / Auto-merge
+        run: python3 -I shared/scripts/auto_merge.py ${{ inputs.enabled && '--enabled' || '' }}
