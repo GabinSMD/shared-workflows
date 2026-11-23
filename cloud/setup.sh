@@ -52,7 +52,8 @@ cat > ~/.claude/settings.json <<'EOF'
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
       "Bash(gh pr comment:*)",
-      "Bash(gh pr view:*)"
+      "Bash(gh pr view:*)",
+      "Bash(gh issue create:*)"
     ],
     "deny": [
       "Bash(git push --force:*)",
@@ -102,9 +103,13 @@ cat > ~/.claude/CLAUDE.md <<'EOF'
   - **Fait** : résumé et lien de la PR ;
   - **Reste à faire** : prochaines étapes, pièges et décisions en attente ;
   - **Prompt suivant** : le prompt prêt à coller pour la session suivante, autonome (repo, branche, contexte utile).
-- **Créer la session suivante** (proposer, puis faire si l'utilisateur accepte) :
-  - depuis une session locale : `claude --cloud "<prompt suivant>"` lancé depuis le repo ;
-  - depuis une session cloud : ouvrir une issue GitHub qui contient le prompt suivant, et donner son lien.
+- **Créer la session suivante**, seulement si elle est utile : il reste du travail que la session suivante peut faire **seule**, sans décision de Gabin (argent, légal, RGPD, sécurité, irréversible, choix métier) et sans attendre un événement extérieur (fusion d'une PR, réponse de quelqu'un). Sinon, pas de session suivante : le dire dans la Passation.
+  - depuis une session locale : proposer `claude --cloud "<prompt suivant>"` lancé depuis le repo ;
+  - depuis une session cloud : ouvrir une issue dans le même dépôt, sans demander, une commande seule :
+    `gh issue create --title "[session-suivante] <résumé court>" --body-file <fichier>`
+    Le corps contient exactement le prompt suivant, puis une dernière ligne `Chaîne : <n>` (1 si cette session n'a pas été ouverte par une issue `[session-suivante]`, sinon le n de cette issue + 1). Donner le lien de l'issue dans la Passation.
+    Le pilote de penny ouvre la session à partir de l'issue dans l'heure, puis la ferme. Au-delà de `Chaîne : 3`, il s'arrête et prévient Gabin.
+- Ne pas archiver sa propre session : le pilote archive une session cloud dès que sa PR est fusionnée.
 
 ## Sessions locales
 - Tout se fait ici, dans le cloud. Si une étape a besoin du Mac (simulateur iOS / Xcode / appareil USB, Docker local et ses volumes de données, modifs non poussées, secrets du trousseau, réseau local / homelab), s'arrêter et demander d'ouvrir une session locale (Remote Control « Macbook »), en disant précisément ce qu'il faut y faire.
