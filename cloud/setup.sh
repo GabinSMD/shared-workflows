@@ -13,6 +13,11 @@ git config --global user.email "59763102+GabinSMD@users.noreply.github.com"
 #    ouvrir une PR. Sans ces règles, une session lancée par une tâche planifiée
 #    ou par une autre session s'arrête, correctif prêt, avant le commit
 #    (constaté le 19/11/2026 sur ecole-saas #450).
+#    `git config user.name/email` en fait partie : la plateforme pose
+#    « Claude <noreply@anthropic.com> » dans le dépôt cloné, et la règle
+#    « Identité des commits » ci-dessous demande de la corriger avant le
+#    premier commit. Sans cette autorisation, la commande enchaînée
+#    (config + add + commit) est refusée en bloc (ecole-saas #428, 23/11/2026).
 #    Interdits quoi qu'il arrive : forcer un push, pousser sur une branche
 #    longue, fusionner une PR. La vraie barrière reste la protection de
 #    branche du dépôt : ces refus ne sont qu'un garde-fou de plus.
@@ -22,6 +27,11 @@ cat > ~/.claude/settings.json <<'EOF'
   "attribution": { "commit": "", "pr": "" },
   "permissions": {
     "allow": [
+      "Bash(git config user.name:*)",
+      "Bash(git config user.email:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git switch:*)",
