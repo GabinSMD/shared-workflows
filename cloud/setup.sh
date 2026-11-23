@@ -7,6 +7,19 @@
 # 1. Identité git : les commits sont à ton nom, pas « Claude »
 git config --global user.name "Gabin SIMOND"
 git config --global user.email "59763102+GabinSMD@users.noreply.github.com"
+#    La plateforme pose aussi « Claude <noreply@anthropic.com> » dans le dépôt
+#    cloné, et cette config locale l'emporte sur la globale. Les variables
+#    d'environnement, elles, l'emportent sur toute config : on les exporte dans
+#    les profils du shell, pour que le commit soit au bon nom même si la
+#    session oublie de corriger la config du dépôt.
+for profil in ~/.bashrc ~/.profile ~/.zshenv; do
+  grep -q 'GIT_AUTHOR_NAME=' "$profil" 2>/dev/null || cat >> "$profil" <<'EOF'
+export GIT_AUTHOR_NAME="Gabin SIMOND"
+export GIT_AUTHOR_EMAIL="59763102+GabinSMD@users.noreply.github.com"
+export GIT_COMMITTER_NAME="Gabin SIMOND"
+export GIT_COMMITTER_EMAIL="59763102+GabinSMD@users.noreply.github.com"
+EOF
+done
 
 # 2. Pas de ligne « Co-Authored-By: Claude » dans les commits et PR, et droit
 #    de livrer sans demander : committer, pousser une branche de travail,
@@ -70,6 +83,13 @@ cat > ~/.claude/CLAUDE.md <<'EOF'
 
 ## Identité des commits
 - Les commits sont au nom de Gabin SIMOND. Avant le premier commit, vérifier `git config user.email` : si c'est `noreply@anthropic.com`, lancer `git config user.name "Gabin SIMOND"` et `git config user.email "59763102+GabinSMD@users.noreply.github.com"` dans le repo.
+
+## Committer et pousser : une commande à la fois
+- Les commandes git se lancent **une par une**, chacune dans son propre appel : `git add <fichiers>`, puis `git commit -m "…"` (ou `-F fichier`), puis `git push -u origin <branche>`, puis `gh pr create`.
+- Ne jamais les enchaîner (`&&`, `;`, `|`) avec autre chose : un script, un `python3 -`, un `cd`, un autre outil. Une commande enchaînée est jugée en bloc ; si un seul morceau n'est pas autorisé, tout est refusé, commit compris, et la session reste bloquée avec son travail non commité.
+- `git add` avec les chemins des fichiers modifiés, pas `git add -A` ni `git add .`.
+- Modifier les fichiers avec les outils d'édition, pas avec un script glissé dans la même commande que le commit.
+- Si une commande git est refusée malgré tout : ne pas contourner, noter la commande exacte et le message, et le dire dans la Passation.
 
 ## Une session, une tâche
 - Une session traite **une seule tâche** (une issue, un bug, une PR). Une autre tâche repérée en chemin est notée pour la passation, pas enchaînée.
