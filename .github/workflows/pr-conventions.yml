@@ -6,6 +6,9 @@ name: PR conventions
 # The PR title becomes the squash commit subject.
 # Reusable workflow: see README.md for the caller to add to each repo.
 # Not checked: long-lived branches (promotions, merge-backs) and bot PRs.
+# In a merge queue (merge_group event) there is no PR title or head branch:
+# both jobs are skipped, which GitHub counts as passing for a required check.
+# The PR itself was already checked before it entered the queue.
 
 on:
   workflow_call:
@@ -26,6 +29,7 @@ env:
 jobs:
   branch:
     name: Branch name
+    if: github.event_name != 'merge_group'
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
@@ -49,6 +53,7 @@ jobs:
 
   title:
     name: PR title
+    if: github.event_name != 'merge_group'
     runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:

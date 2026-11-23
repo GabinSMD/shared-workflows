@@ -19,11 +19,13 @@ name: PR conventions
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+  merge_group: # only on a branch with a merge queue
 
 permissions: {}
 
 concurrency:
-  group: pr-conventions-${{ github.event.pull_request.number }}
+  # A merge group has no PR number: its unique ref keeps queue runs apart.
+  group: pr-conventions-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -33,7 +35,7 @@ jobs:
     #   extra-prefixes: "schemas|fiches"   # repo-specific branch prefixes
 ```
 
-The checks show up as `conventions / Branch name` and `conventions / PR title`. To make them blocking, add them as required status checks in the branch protection settings. On a branch with a merge queue, also add `merge_group` to the caller's triggers first.
+The checks show up as `conventions / Branch name` and `conventions / PR title`. To make them blocking, add them as required status checks in the branch protection settings. On a branch with a merge queue, add `merge_group` to the caller's triggers first: in a merge group both jobs are skipped (no PR title or branch there), and GitHub counts a skipped required check as passing.
 
 ## Auto-merge
 
