@@ -109,8 +109,8 @@ cat > ~/.claude/CLAUDE.md <<'EOF'
   - **Prompt suivant** : le prompt prêt à coller pour la session suivante, autonome (repo, branche, contexte utile).
 - **Créer la session suivante**, seulement si elle est utile : il reste du travail que la session suivante peut faire **seule**, sans décision de Gabin (argent, légal, RGPD, sécurité, irréversible, choix métier) et sans attendre un événement extérieur (fusion d'une PR, réponse de quelqu'un). Sinon, pas de session suivante : le dire dans la Passation.
   - depuis une session locale : proposer `claude --cloud "<prompt suivant>"` lancé depuis le repo ;
-  - depuis une session cloud : ouvrir une issue dans le même dépôt, sans demander, avec l'outil `issue_write` (`method: create`, titre `[session-suivante] <résumé court>`), pas avec `gh issue create`, qui fait ajouter le pied de la plateforme.
-    Le corps contient exactement le prompt suivant, puis une dernière ligne `Chaîne : <n>` (1 si cette session n'a pas été ouverte par une issue `[session-suivante]`, sinon le n de cette issue + 1). Donner le lien de l'issue dans la Passation.
+  - depuis une session cloud : ouvrir une issue dans le même dépôt, sans demander, avec l'outil `issue_write` (`method: create`, étiquette `session-suivante`, titre dans la convention habituelle du dépôt : Conventional Commits en anglais, `type(scope): imperative sentence`, sans préfixe technique), pas avec `gh issue create`, qui fait ajouter le pied de la plateforme.
+    Le corps contient exactement le prompt suivant, puis une dernière ligne `Chaîne : <n>` (1 si cette session n'a pas été ouverte par une issue étiquetée `session-suivante`, sinon le n de cette issue + 1). Donner le lien de l'issue dans la Passation.
     Le pilote de penny ouvre la session à partir de l'issue dans l'heure, puis la ferme. Au-delà de `Chaîne : 3`, il s'arrête et prévient Gabin.
 - Ne pas archiver sa propre session : le pilote archive une session cloud dès que sa PR est fusionnée.
 
